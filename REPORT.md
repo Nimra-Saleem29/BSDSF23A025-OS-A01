@@ -28,3 +28,53 @@ It includes release notes and optionally pre-built binaries so users can downloa
 - New variables like `LIB` were added to handle library paths.
 
 👉 **Key Difference:** Part 2 focused on building and linking objects directly, while Part 3 introduced an extra step — packaging object files into a reusable static library and then linking the executable with that library.
+
+### Q2. What is the purpose of the `ar` command? Why is `ranlib` often used immediately after it?
+
+- `ar` (archiver) is used to combine multiple object (`.o`) files into a single archive file (`.a`), which becomes a **static library**.  
+- Example:  
+  ```bash
+  ar rcs lib/libmyutils.a obj/mystrfunctions.o obj/myfilefunctions.o
+  
+Q3. When you run nm on your client_static executable, are the symbols for functions like mystrlen present? What does this tell you about how static linking works?
+
+In the object files (.o), functions like mystrlen or mystrcpy appear as defined symbols (T in nm output).
+
+In the archive (libmyutils.a), the same symbols are listed per object file.
+
+In the final executable (client_static), those symbols usually don’t appear, because the linker has already copied their machine code directly into the executable.
+
+Feature 4 – Dynamic Library Build
+
+Q1. What is Position-Independent Code (-fPIC) and why is it a fundamental requirement for creating shared libraries?
+
+-fPIC tells the compiler to generate Position-Independent Code, which can run correctly no matter where in memory it is loaded.
+
+Shared libraries (.so) are loaded at runtime by the OS dynamic loader, and their exact memory address is not known at compile time.
+
+With PIC, all memory references are relative, making it safe to map the .so anywhere in memory.
+
+This is why -fPIC is a fundamental requirement for shared libraries.
+
+2. Explain the difference in file size between your static and dynamic clients. Why does this difference exist?
+
+Static client (client_static) embeds a full copy of all required library functions into the executable. This usually makes the file larger.
+
+Dynamic client (client_dynamic) only contains references to the library. The actual code stays in the .so, which is loaded by the OS at runtime. This usually makes the file smaller.
+
+In our project, both were about 17 KB because:
+
+The library code is very small.
+
+ELF headers and startup code dominate the size.
+
+in larger projects, the static client would be much bigger, while the dynamic client would stay relatively small.
+
+Q3. What is the LD_LIBRARY_PATH environment variable? Why was it necessary to set it for your program to run?
+
+LD_LIBRARY_PATH tells the dynamic loader where to search for shared libraries at runtime.
+
+By default, it only searches system directories like /lib and /usr/lib.
+
+Since our libmyutils.so is in the local ./lib/ directory, the loader could not find it until we extended the search path:export LD_LIBRARY_PATH=lib:$LD_LIBRARY_PATH
+
