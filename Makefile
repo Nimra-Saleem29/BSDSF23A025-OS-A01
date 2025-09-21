@@ -16,3 +16,10 @@ dynamic: $(DYNAMIC_LIB) $(DYNAMIC_CLIENT)
 # Run dynamic client
 run-dynamic: dynamic
 	LD_LIBRARY_PATH=lib ./$(DYNAMIC_CLIENT)
+install:
+	mkdir -p /usr/local/bin
+	mkdir -p /usr/local/share/man/man1
+	cp bin/client_dynamic /usr/local/bin/client
+	cp man/man1/client.1 /usr/local/share/man/man1/
+	chmod 755 /usr/local/bin/client
+	chmod 644 /usr/local/share/man/man1/client.1
