@@ -14,3 +14,17 @@ Annotated tags are preferred for versioning.
 ### Q3: What is the purpose of a GitHub release?
 A GitHub release is a formal snapshot of the project at a specific version (tag).  
 It includes release notes and optionally pre-built binaries so users can download and run the program without compiling the source.
+
+### Q1. Compare the Makefile from Part 2 and Part 3
+
+**Part 2 (Object build):**  
+- The Makefile only compiled `.c` files into `.o` object files.  
+- Then it directly linked the `.o` files into a single executable (`bin/myprog`).  
+- No library was created.
+
+**Part 3 (Static library build):**  
+- The Makefile introduced new rules to combine object files into a static library (`lib/libmyutils.a`) using the `ar` command.  
+- The final executable (`bin/client_static`) was built by linking `main.o` against this library using `-Llib -lmyutils`.  
+- New variables like `LIB` were added to handle library paths.
+
+👉 **Key Difference:** Part 2 focused on building and linking objects directly, while Part 3 introduced an extra step — packaging object files into a reusable static library and then linking the executable with that library.
