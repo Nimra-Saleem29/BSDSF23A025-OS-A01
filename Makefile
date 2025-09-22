@@ -1,56 +1,44 @@
-# Compiler and flags
+# --- Makefile for Feature 3: Static Library ---
 CC = gcc
-CFLAGS = -Wall -Iinclude
+CFLAGS = -Iinclude -Wall -Wextra
+AR = ar rcs
 
-# Directories
-SRC = src
-OBJ = obj
-BIN = bin
-LIB = lib
+SRC = src/mystrfunctions.c src/myfilefunctions.c src/main.c
+OBJ = obj/mystrfunctions.o obj/myfilefunctions.o obj/main.o
 
-# Targets
-TARGET = $(BIN)/myprog
-STATIC_LIB = $(LIB)/libmyutils.a
-STATIC_CLIENT = $(BIN)/client_static
+STATIC_LIB = lib/libmyutils.a
+BIN_STATIC = bin/client_static
 
-# Sources and objects
-SRCS = $(wildcard $(SRC)/*.c)
-OBJS = $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))
+.PHONY: all static clean run
 
-# Default rule
-all: $(TARGET)
+all: static
 
-# Normal build
-$(TARGET): $(OBJS)
-	$(CC) $(OBJS) -o $(TARGET)
-
-# Object compilation
-$(OBJ)/%.o: $(SRC)/%.c
+# Compile source to object
+obj/%.o: src/%.c | obj
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# ----------------------
-# Static library build
-# ----------------------
+obj:
+	mkdir -p obj
 
-# Main target for static build
-static: $(STATIC_LIB) $(STATIC_CLIENT)
+lib:
+	mkdir -p lib
 
-# Create static library from obj files (except main.o)
-$(STATIC_LIB): obj/mystrfunctions.o obj/myfilefunctions.o
-	ar rcs $(STATIC_LIB) obj/mystrfunctions.o obj/myfilefunctions.o
+bin:
+	mkdir -p bin
 
-# Build client_static linked with static lib
-$(STATIC_CLIENT): obj/main.o $(STATIC_LIB)
-	$(CC) obj/main.o -L$(LIB) -lmyutils -o $(STATIC_CLIENT)
+# Create static library
+$(STATIC_LIB): obj/mystrfunctions.o obj/myfilefunctions.o | lib
+	$(AR) $(STATIC_LIB) obj/mystrfunctions.o obj/myfilefunctions.o
+
+# Build client_static
+static: $(STATIC_LIB) obj/main.o | bin
+	$(CC) obj/main.o -Llib -lmyutils -o $(BIN_STATIC)
 
 # Run program
-run: $(TARGET)
-	./$(TARGET)
+run: static
+	./$(BIN_STATIC)
 
-# Run static build
-run-static: static
-	./$(STATIC_CLIENT)
-
-# Clean
+# Clean build artifacts
 clean:
-	rm -f $(OBJ)/*.o $(TARGET) $(STATIC_CLIENT) $(STATIC_LIB)
+	rm -rf obj/* bin/* lib/*.a
+# --- end of Makefile ---
