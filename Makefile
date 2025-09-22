@@ -1,4 +1,5 @@
 # --- dynamic library / client_dynamic rules ---
+.PHONY: clean
 DYNAMIC_LIB = lib/libmyutils.so
 DYNAMIC_CLIENT = bin/client_dynamic
 
@@ -23,3 +24,5 @@ install:
 	cp man/man1/client.1 /usr/local/share/man/man1/
 	chmod 755 /usr/local/bin/client
 	chmod 644 /usr/local/share/man/man1/client.1
+clean:
+	rm -f obj/*.o bin/* lib/*.a lib/*.so
