@@ -34,3 +34,14 @@ run: $(TARGET)
 # Clean build artifacts
 clean:
 	rm -f $(OBJ)/*.o $(TARGET)
+install:
+	mkdir -p /usr/local/bin
+	mkdir -p /usr/local/share/man/man1
+	mkdir -p /usr/local/lib
+	cp bin/client_dynamic /usr/local/bin/client
+	cp man/man1/client.1 /usr/local/share/man/man1/
+	cp lib/libmyutils.so /usr/local/lib/
+	chmod 755 /usr/local/bin/client
+	chmod 644 /usr/local/share/man/man1/client.1
+	chmod 755 /usr/local/lib/libmyutils.so
+	sudo ldconfig
