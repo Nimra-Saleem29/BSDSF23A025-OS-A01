@@ -1,44 +1,63 @@
-# --- Makefile for Feature 3: Static Library ---
+# --- Makefile for Static & Dynamic Library Builds ---
+
 CC = gcc
 CFLAGS = -Iinclude -Wall -Wextra
-AR = ar rcs
 
-SRC = src/mystrfunctions.c src/myfilefunctions.c src/main.c
-OBJ = obj/mystrfunctions.o obj/myfilefunctions.o obj/main.o
+OBJ_DIR = obj
+BIN_DIR = bin
+LIB_DIR = lib
 
-STATIC_LIB = lib/libmyutils.a
-BIN_STATIC = bin/client_static
+OBJS = $(OBJ_DIR)/mystrfunctions.o $(OBJ_DIR)/myfilefunctions.o
+MAIN_OBJ = $(OBJ_DIR)/main.o
 
-.PHONY: all static clean run
+STATIC_LIB = $(LIB_DIR)/libmyutils.a
+DYNAMIC_LIB = $(LIB_DIR)/libmyutils.so
 
-all: static
+BIN_STATIC = $(BIN_DIR)/client_static
+BIN_DYNAMIC = $(BIN_DIR)/client_dynamic
 
-# Compile source to object
-obj/%.o: src/%.c | obj
-	$(CC) $(CFLAGS) -c $< -o $@
+.PHONY: all static dynamic clean run_static run_dynamic
 
-obj:
-	mkdir -p obj
+# Default build: static + dynamic
+all: $(BIN_STATIC) $(BIN_DYNAMIC)
 
-lib:
-	mkdir -p lib
+# --- Object file compilation ---
+$(OBJ_DIR)/%.o: src/%.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -fPIC -c $< -o $@
 
-bin:
-	mkdir -p bin
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
-# Create static library
-$(STATIC_LIB): obj/mystrfunctions.o obj/myfilefunctions.o | lib
-	$(AR) $(STATIC_LIB) obj/mystrfunctions.o obj/myfilefunctions.o
+$(LIB_DIR):
+	mkdir -p $(LIB_DIR)
 
-# Build client_static
-static: $(STATIC_LIB) obj/main.o | bin
-	$(CC) obj/main.o -Llib -lmyutils -o $(BIN_STATIC)
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
 
-# Run program
-run: static
+# --- Static Library Rules ---
+$(STATIC_LIB): $(OBJS) | $(LIB_DIR)
+	ar rcs $@ $^
+
+$(BIN_STATIC): $(MAIN_OBJ) $(STATIC_LIB) | $(BIN_DIR)
+	$(CC) $(MAIN_OBJ) -L$(LIB_DIR) -lmyutils -o $@
+
+static: $(BIN_STATIC)
+
+run_static: $(BIN_STATIC)
 	./$(BIN_STATIC)
 
-# Clean build artifacts
+# --- Dynamic Library Rules ---
+$(DYNAMIC_LIB): $(OBJS) | $(LIB_DIR)
+	$(CC) -shared -o $@ $^
+
+$(BIN_DYNAMIC): $(MAIN_OBJ) $(DYNAMIC_LIB) | $(BIN_DIR)
+	$(CC) $(MAIN_OBJ) -L$(LIB_DIR) -lmyutils -o $@
+
+dynamic: $(BIN_DYNAMIC)
+
+run_dynamic: $(BIN_DYNAMIC)
+	LD_LIBRARY_PATH=$(LIB_DIR):$$LD_LIBRARY_PATH ./$(BIN_DYNAMIC)
+
+# --- Clean ---
 clean:
-	rm -rf obj/* bin/* lib/*.a
-# --- end of Makefile ---
+	rm -rf $(OBJ_DIR)/* $(BIN_DIR)/* $(LIB_DIR)/*
