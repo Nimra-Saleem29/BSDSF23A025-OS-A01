@@ -1,0 +1,9 @@
+* f654558 (HEAD -> main, tag: v0.4.1-final, origin/man-pages, origin/main, origin/HEAD, man-pages) Feature 5: Add man page and install target
+* b42aaed (origin/dynamic-build, dynamic-build) Add Feature 4: Dynamic Library build and REPORT.md answers
+* 3c9fd87 (tag: v0.3.1-dynamic) Feature4: Added dynamic library build and client_dynamic with LD_LIBRARY_PATH fix
+* 6e7bae5 (origin/static-build, static-build) Task 4: Added Report questions (Makefile comparison, ar/ranlib, nm analysis) to REPORT.md
+* cd7c24c (tag: v0.2.1-static) Task 4: Added static library (libmyutils.a) and client_static build
+* 2facb16 (origin/multifile-branch, multifile-branch) Update REPORT.md with Feature-2 answers
+* 7ec7c50 (tag: v0.1.1-multifile) feature2 commit: make makefile
+* 024e146 (multifile-build) initial ptoject commit: add directories
+* be97b16 Initial commit
